@@ -21,9 +21,9 @@ indexing and search systems.
 
 ### Index documents
 
-```python index.py <folder_path>```
+```python index.py <folder_path or file_path>```
 
-This command scans the folder and generates an index.json file.
+This command scans the files inside a folder or a single file and generates an index.json file.
 
 ### Search documents
 
