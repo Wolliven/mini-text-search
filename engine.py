@@ -5,16 +5,9 @@ import json
 from pathlib import Path
 
 def tokenize_file(path):
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = tokenize(f.read())
-            return content
-    except FileNotFoundError:
-        print(f"File '{path}' not found.")
-        return None
-    except Exception as e:
-        print(f"An error occurred while processing the file '{path}': {e}")
-        return None
+    with open(path, 'r', encoding='utf-8') as f:
+        content = tokenize(f.read())
+        return content
 
 def analyze_file(file_path, results):
     results["total_files"] += 1
