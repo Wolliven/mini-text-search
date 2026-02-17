@@ -1,5 +1,5 @@
 #The main engine for the mini-text-search project. Handles indexing and searching functionality.
-from utils import tokenize
+from utils import tokenize, normalize
 import sys
 import json
 from pathlib import Path
@@ -36,8 +36,26 @@ def build_index(path):
     else:
         print(f"'{path}' is not a valid file or folder.")
         sys.exit(1)
-    print(json.dumps(general_result, indent=4))
+    open("index.json", "w", encoding='utf-8').write(json.dumps(general_result, indent=4))
 
 
 def search(query):
-    print(f"Searching for query: {query}")
+    try:
+        with open("index.json", "r", encoding='utf-8') as f:
+            index_data = json.load(f)
+    except FileNotFoundError:
+        print("Index file not found. Please run 'python index.py <folder_path>' to create the index first.")
+        sys.exit(1)
+
+    query_tokens = tokenize(" ".join(query))
+    matching_files = set()
+    for token in query_tokens:
+        if token in index_data["index"]:
+            matching_files.update(index_data["index"][token])
+
+    if matching_files:
+        print("Files matching the query:")
+        for file in matching_files:
+            print(file)
+    else:
+        print("No files match the query.")
