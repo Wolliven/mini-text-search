@@ -1,14 +1,20 @@
 #Takes the path to a json file containing search index and a query string, returns list of file paths matching the query
 import sys
 from engine import search
+import argparse
 
-def main(query):
-    search(query)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("words", nargs="+")
+    parser.add_argument("--or", dest="mode", action="store_const", const="or")
+    parser.add_argument("--and", dest="mode", action="store_const", const="and", default="and")
 
+    args = parser.parse_args()
+
+    search(args.words, mode=args.mode)
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        folder = sys.argv[1:]
-        main(folder)
+        main()
     else:
-        print("Program usage: python search.py <query>")
+        print("Program usage: python search.py <query1> <query2> ... [--and | --or] (Default is --and)")
         sys.exit(1)

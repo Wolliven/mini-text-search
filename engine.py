@@ -1,5 +1,5 @@
 #The main engine for the mini-text-search project. Handles indexing and searching functionality.
-from utils import tokenize, normalize
+from utils import tokenize
 import sys
 import json
 from pathlib import Path
@@ -38,21 +38,10 @@ def build_index(path):
         print(f"'{path}' is not a valid file or folder.")
         sys.exit(1)
     open("index.json", "w", encoding='utf-8').write(json.dumps(general_result, indent=4))
+    print(f"Index built successfully. Total files indexed: {general_result['total_files']}")
 
 
-def search(query):
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("words", nargs="+")
-    parser.add_argument("--and", dest="use_and", action="store_true")
-    parser.add_argument("--or", dest="use_or", action="store_true")
-
-    args = parser.parse_args()
-    if args.use_or:
-        mode = "or"
-    else:
-        mode = "and"
-
+def search(query_words, mode="and"):
     try:
         with open("index.json", "r", encoding='utf-8') as f:
             index_data = json.load(f)
@@ -60,8 +49,9 @@ def search(query):
         print("Index file not found. Please run 'python index.py <folder_path>' to create the index first.")
         sys.exit(1)
 
-    query_tokens = tokenize(" ".join(args.words))
+    query_tokens = tokenize(" ".join(query_words))
     matching_files = set()
+
     print(f"Searching for: {query_tokens} with mode: {mode}")
     if mode == "and":
         matching_files = set(index_data["index"].get(query_tokens[0], []))
