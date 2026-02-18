@@ -3,6 +3,7 @@ from utils import tokenize, normalize
 import sys
 import json
 from pathlib import Path
+import argparse
 
 def tokenize_file(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -40,6 +41,18 @@ def build_index(path):
 
 
 def search(query):
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("words", nargs="+")
+    parser.add_argument("--and", dest="use_and", action="store_true")
+    parser.add_argument("--or", dest="use_or", action="store_true")
+
+    args = parser.parse_args()
+    if args.use_or:
+        mode = "or"
+    else:
+        mode = "and"
+
     try:
         with open("index.json", "r", encoding='utf-8') as f:
             index_data = json.load(f)
@@ -47,11 +60,21 @@ def search(query):
         print("Index file not found. Please run 'python index.py <folder_path>' to create the index first.")
         sys.exit(1)
 
-    query_tokens = tokenize(" ".join(query))
+    query_tokens = tokenize(" ".join(args.words))
     matching_files = set()
-    for token in query_tokens:
-        if token in index_data["index"]:
-            matching_files.update(index_data["index"][token])
+    print(f"Searching for: {query_tokens} with mode: {mode}")
+    if mode == "and":
+        matching_files = set(index_data["index"].get(query_tokens[0], []))
+        for token in query_tokens[1:]:
+            if token in index_data["index"]:
+                matching_files.intersection_update(index_data["index"][token])
+            else:
+                matching_files.clear()
+                break
+    elif mode == "or":
+        for token in query_tokens:
+            if token in index_data["index"]:
+                matching_files.update(index_data["index"][token])
 
     if matching_files:
         print("Files matching the query:")
