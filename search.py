@@ -1,23 +1,23 @@
-'''
-Takes the path to a json file containing search index and a query string, returns list of file paths matching the query
-'''
-import sys
+"""
+Searches the index using one or more query words.
+Default mode is AND. Use --mode or to match any word.
+"""
 from engine import search
 import argparse
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("words", nargs="+")
-    parser.add_argument("--or", dest="mode", action="store_const", const="or")
-    parser.add_argument("--and", dest="mode", action="store_const", const="and", default="and")
+    parser = argparse.ArgumentParser(
+        description="Search files using the index.",
+        usage="python search.py QUERY [QUERY ...] [--mode and|or]",
+        epilog="Example: python search.py ramen tokyo --mode or",
+    )
+    parser.add_argument("query", nargs="+", metavar="QUERY", help="One or more query words")
+    parser.add_argument("--mode", metavar="MODE", choices=["and", "or"], default="and", help="Search mode: 'and' (default) or 'or'")
+
 
     args = parser.parse_args()
+    search(args.query, mode=args.mode)
 
-    if len(sys.argv) > 1:
-        search(args.words, mode=args.mode)
-    else:
-        print("Program usage: python search.py <query1> <query2> ... [--and | --or] (Default is --and)")
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

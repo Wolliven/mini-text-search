@@ -1,6 +1,6 @@
-'''
+"""
 The main engine for the mini-text-search project. Handles indexing and searching functionality.
-'''
+"""
 from utils import tokenize
 import sys
 import json

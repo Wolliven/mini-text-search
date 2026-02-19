@@ -1,6 +1,6 @@
-'''
+"""
 Takes the path to a folder containing text files and creates an index.json file
-'''
+"""
 import sys
 from engine import build_index
 
