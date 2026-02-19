@@ -1,4 +1,6 @@
-#Utility functions
+'''
+Utility functions
+'''
 import re
 
 def normalize(text):

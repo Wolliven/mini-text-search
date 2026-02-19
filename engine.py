@@ -1,9 +1,10 @@
-#The main engine for the mini-text-search project. Handles indexing and searching functionality.
+'''
+The main engine for the mini-text-search project. Handles indexing and searching functionality.
+'''
 from utils import tokenize
 import sys
 import json
 from pathlib import Path
-import argparse
 
 def tokenize_file(path):
     with open(path, 'r', encoding='utf-8') as f:

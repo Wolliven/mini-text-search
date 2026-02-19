@@ -1,4 +1,6 @@
-#Takes the path to a json file containing search index and a query string, returns list of file paths matching the query
+'''
+Takes the path to a json file containing search index and a query string, returns list of file paths matching the query
+'''
 import sys
 from engine import search
 import argparse
@@ -11,10 +13,11 @@ def main():
 
     args = parser.parse_args()
 
-    search(args.words, mode=args.mode)
-if __name__ == "__main__":
     if len(sys.argv) > 1:
-        main()
+        search(args.words, mode=args.mode)
     else:
         print("Program usage: python search.py <query1> <query2> ... [--and | --or] (Default is --and)")
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()
