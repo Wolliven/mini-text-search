@@ -14,7 +14,7 @@ indexing and search systems.
 - Builds an inverted index mapping words to documents
 - Stores the index on disk for reuse
 - Allows searching for documents containing given words
-- Allows arguments --and and --or for querying
+- Allows argument --mode with and and or for querying
 
 ---
 
@@ -28,7 +28,7 @@ This command scans the files inside a folder or a single file and generates an i
 
 ### Search documents
 
-```python search.py <word1> <word2> ... [--and | --or] (Default is --and)```
+```python search.py <word1> <word2> ... [--mode and|or] (Default is --and)```
 
 This command loads the index and prints the documents that match the given search terms.
 

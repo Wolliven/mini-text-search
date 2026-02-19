@@ -2,14 +2,12 @@
 The main engine for the mini-text-search project. Handles indexing and searching functionality.
 """
 from utils import tokenize
-import sys
 import json
 from pathlib import Path
 
 def tokenize_file(path):
     with open(path, 'r', encoding='utf-8') as f:
-        content = tokenize(f.read())
-        return content
+        return tokenize(f.read())
 
 def analyze_file(file_path, results):
     results["total_files"] += 1
@@ -18,7 +16,7 @@ def analyze_file(file_path, results):
     for local_word in local_result:
         results["index"].setdefault(local_word, []).append(str(file_path))
 
-def build_index(path):
+def build_index(path, index_path="index.json"):
     general_result = {
         "total_files": 0,
         "analyzed_files": [],
@@ -27,8 +25,7 @@ def build_index(path):
 
     p = Path(path)
     if not p.exists():
-        print(f"The folder or file '{path}' does not exist.")
-        sys.exit(1)
+        raise FileNotFoundError(f"The folder or file '{path}' does not exist.")
     if p.is_dir():
         for file_path in Path(path).rglob("*.txt"):
             analyze_file(file_path, general_result)
@@ -36,40 +33,31 @@ def build_index(path):
     elif p.is_file() and p.suffix == ".txt":
         analyze_file(p, general_result)
     else:
-        print(f"'{path}' is not a valid file or folder.")
-        sys.exit(1)
-    open("index.json", "w", encoding='utf-8').write(json.dumps(general_result, indent=4))
-    print(f"Index built successfully. Total files indexed: {general_result['total_files']}")
+        raise ValueError(f"'{path}' is not a valid file or folder. Please provide a path to a folder containing text files or a single text file.")
+    with open(index_path, "w", encoding='utf-8') as f:
+        json.dump(general_result, f, indent=4, ensure_ascii=False)
+    return general_result["total_files"]
 
 
-def search(query_words, mode="and"):
-    try:
-        with open("index.json", "r", encoding='utf-8') as f:
-            index_data = json.load(f)
-    except FileNotFoundError:
-        print("Index file not found. Please run 'python index.py <folder_path>' to create the index first.")
-        sys.exit(1)
+def search(query_words, mode="and", index_path="index.json"):
+    if not Path(index_path).exists():
+        raise FileNotFoundError(f"Index file '{index_path}' not found. Please run 'python index.py <folder_path>' to create the index first.")
+    if mode not in ["and", "or"]:
+        raise ValueError(f"Invalid search mode '{mode}'. Valid modes are 'and' and 'or'.")
+    with open(index_path, "r", encoding='utf-8') as f:
+        index_data = json.load(f)
 
     query_tokens = tokenize(" ".join(query_words))
+    if not query_tokens:
+        raise ValueError("No valid query words provided after tokenization. Please provide one or more valid query words.")
     matching_files = set()
-
-    print(f"Searching for: {query_tokens} with mode: {mode}")
     if mode == "and":
         matching_files = set(index_data["index"].get(query_tokens[0], []))
         for token in query_tokens[1:]:
-            if token in index_data["index"]:
-                matching_files.intersection_update(index_data["index"][token])
-            else:
-                matching_files.clear()
-                break
+            matching_files.intersection_update(index_data["index"].get(token, []))
     elif mode == "or":
         for token in query_tokens:
             if token in index_data["index"]:
                 matching_files.update(index_data["index"][token])
 
-    if matching_files:
-        print("Files matching the query:")
-        for file in matching_files:
-            print(file)
-    else:
-        print("No files match the query.")
+    return matching_files
